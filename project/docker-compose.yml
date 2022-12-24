@@ -27,7 +27,8 @@ services:
       DSN: "host=postgres port=5432 user=postgres password=password dbname=users sslmode=disable timezone=UTC connect_timeout=5"
 
   postgres:
-    image: 'postgres:14.2'
+    image: 'postgres:14.0'
+    command: postgres -c stats_temp_directory=/tmp
     ports:
       - "5432:5432"
     restart: always
