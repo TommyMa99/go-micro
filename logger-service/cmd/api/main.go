@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	webPort = "80"
-	rpcPort = "5001"
+	webPort  = "80"
+	rpcPort  = "5001"
 	mongoURL = "mongodb://mongo:27017"
 	gRpcPort = "50001"
 )
@@ -28,12 +28,12 @@ type Config struct {
 func main() {
 	//Connect to mongo
 	mongoClient, err := connectToMongo()
-	if err!= nil {
-        log.Panic(err)
-    }
+	if err != nil {
+		log.Panic(err)
+	}
 	client = mongoClient
 
-    //Create a context to disconnect
+	//Create a context to disconnect
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 
@@ -42,42 +42,51 @@ func main() {
 		if err = client.Disconnect(ctx); err != nil {
 			panic(err)
 		}
-	} ()
+	}()
 
 	app := Config{
 		Models: data.New(client),
 	}
 
 	// Start web server
-	go app.serve()
-
-}
-
-func (app *Config) serve() {
-	srv := &http.Server {
-		Addr: fmt.Sprintf(":%s", webPort),
+	// go app.serve()
+	srv := &http.Server{
+		Addr:    fmt.Sprintf(":%s", webPort),
 		Handler: app.routes(),
 	}
 
-	err := srv.ListenAndServe()
-	if err!= nil {
-        log.Panic()
-    }
+	err = srv.ListenAndServe()
+	if err != nil {
+		log.Panic()
+	}
+
 }
+
+// func (app *Config) serve() {
+// 	srv := &http.Server{
+// 		Addr:    fmt.Sprintf(":%s", webPort),
+// 		Handler: app.routes(),
+// 	}
+
+// 	err := srv.ListenAndServe()
+// 	if err != nil {
+// 		log.Panic()
+// 	}
+// }
 
 func connectToMongo() (*mongo.Client, error) {
 	// Creat  connection option
 	clientOptions := options.Client().ApplyURI(mongoURL)
 	clientOptions.SetAuth(options.Credential{
 		Username: "admin",
-        Password: "password",
+		Password: "password",
 	})
 
 	// Connect
 	c, err := mongo.Connect(context.TODO(), clientOptions)
-	if err!= nil {
-        log.Println("Error Connecting", err)
+	if err != nil {
+		log.Println("Error Connecting", err)
 		return nil, err
-    }
+	}
 	return c, nil
 }
